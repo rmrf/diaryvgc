@@ -1,3 +1,5 @@
+作者: ryan.qian@gmail.com 美金
+
 脚本用途：将VIM Calendar 插件生成的Diary同步到Google Calendar 。
 
 编写动机：一直以来我都用Google Calendar记录每日流水帐，记录每一天都做了什么。以前工作的时候，这个习惯非常好，尤其是在定期给客户写维护报告的时候。一些细节的琐碎事情都能借助Google Calendar的搜索功能准确定位时间。缺点就是要联网的时候才能写，否则就要临时编辑个文件，时间久了，想要从这些乱七八糟的本地文件里面找到有用的信息真是痛苦。最近使用了VIM Calendar插件，发现可以写diary，记录流水帐再好不过。缺点就是检索和查看都比较困难，于是就萌生了同步diary到Google Calendar的想法。
