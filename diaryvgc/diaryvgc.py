@@ -18,6 +18,10 @@ import sys
 import string
 import datetime
 import re
+import codecs
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 class CalendarVIM:
@@ -106,7 +110,7 @@ class CalendarVIM:
     return new_event
 
   def _InsertSingleEvent(self, title='New VIM Event-single',
-      content='from vim diary', where='China',
+      content='from vim diary description', where='China',
       start_time=None, end_time=None,which_calendar='/calendar/feeds/default/private/full'):
     """Uses the _InsertEvent helper method to insert a single event which
     does not have any recurrence syntax specified."""
@@ -126,8 +130,7 @@ class CalendarVIM:
                 #print 'Deleting... \t%s. %s\n' % (i, an_event.title.text,)
                 self.cal_client.DeleteEvent(an_event.GetEditLink().href)
 
-  def Run(self, info="Hi, I am VIM Event",datetime='',delete='false'):
-    
+  def Run(self, info="Hi, I am VIM Event",desc='From vim diary description',datetime='',delete='false'):
 #   Show what have already in there
 #    print "Print All Event at Default Calendar"
 #    self._PrintAllEventsOnDefaultCalendar()
@@ -148,10 +151,10 @@ class CalendarVIM:
             self._InsertVIMCalendar() 
             new_vim_there =  self._IfVIMCalendar()
             new_vim_id = '/calendar/feeds/'+new_vim_there+'/private/full'
-            self._InsertSingleEvent(title=info,start_time=datetime,which_calendar=new_vim_id)
+            self._InsertSingleEvent(title=info,content=desc,start_time=datetime,which_calendar=new_vim_id)
         else:
             vim_id = '/calendar/feeds/'+vim_there+'/private/full'
-            self._InsertSingleEvent(title=info,start_time=datetime,which_calendar=vim_id)
+            self._InsertSingleEvent(title=info,content=desc,start_time=datetime,which_calendar=vim_id)
 
 def main():
   """Runs the CalendarVIM application with the provided username and
@@ -244,15 +247,44 @@ python diaryvgc.py [-d] --user=[username] --pw=[password] --dir=[diarydir] \n
                     (year,month,day) = ptime.search(tfile).groups()
                     dtime = datetime.date(int(year),int(month),int(day)).isoformat()
                     #print tfile+'\t'+dtime
-                    if tfile not in existline:  #if I found NEW diary,so....
-                      try:
-                        logfile.write(tfile+'\n') 
-                        diaryinfo = open(tfile).read()
-                        if sys.platform[:3] == 'win': diaryinfo = unicode(diaryinfo,'cp936')
-                        diaryvgc.Run(info=diaryinfo,datetime=dtime)
-                      except Exception,ex:
-                        print Exception,':',ex
-                        print "Sorry, something inside your diary I can not upload to Google Calendar"
+                    #check if the diary nothing in it
+                    if os.path.getsize(tfile) == 0:
+                        os.remove(tfile)
+                    else:
+                        if tfile not in existline:  #if I found NEW diary,so....
+                          try:
+                            logfile.write(tfile+'\n') 
+                            if sys.platform[:3] == 'win':
+                                try:
+                                    diaryinfo = open(tfile).read()
+                                    info_done = unicode(diaryinfo,'cp936')
+                                    #print "=============win===UTF8=============="+tfile
+                                except Exception,ex:
+                                    diaryinfo = codecs.open(tfile,'r','gb2312').read()
+                                    info_done = diaryinfo.encode("utf-8")
+                                    #print "============win====GB2312=============="+tfile
+                            else:
+                                try:
+                                    diaryinfo = codecs.open(tfile,'r','gb2312').read()
+                                    info_done = diaryinfo.encode("utf-8")
+                                    #print "=============notwin===GB2312=============="+tfile
+                                except Exception,ex:
+                                    diaryinfo = open(tfile).read()
+                                    info_done = diaryinfo
+                                    #print "============notwin====UTF8=============="+tfile
+
+                            dotdot = ''
+                            if info_done[80:] != '':
+                                dotdot='...'
+                            shortdesc = info_done[0:80]+dotdot
+                            longdesc = info_done
+                            #print "++++++++++++++++++++++++"
+                            #print shortdesc
+                            #print longdesc
+                            diaryvgc.Run(info=shortdesc,desc=longdesc,datetime=dtime)
+                          except Exception,ex:
+                            print Exception,':',ex
+                            print "Sorry, something inside your diary I can not upload to Google Calendar"
 
         logfile.close()
   else:

@@ -33,6 +33,7 @@ VIM Calendar插件会在用户目录下的diary目录中按照日期的目录结构生成日记文本，如: /
 1, 增加windows平台支持(已经支持)
 2, 增加Diary修改的检测,修改后的diary可以同步到Google Calendar。
 3, 增加同步控制
+4, 修改程序，将Diary内容上传至Google Calendar条目的Description(内容)中，而不是条目的title,title中仅仅存放摘要内容,避免了查看不方便的现象。经测试Google Calendar的搜索功能涵盖条目的Description，此项改进后，对较大的Diary内容十分有利。(已经修改)2008-05-23 
 
 脚本下载：
 
